@@ -10,3 +10,6 @@ device-bundle.json
 windows/installer/artifacts/
 *.msi
 *.intunewin
+
+!dist/
+!dist/*.msi
