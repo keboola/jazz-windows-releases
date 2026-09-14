@@ -1,0 +1,1780 @@
+{
+  "protocol": "dev.jazz.live-capture",
+  "protocolVersion": 1,
+  "archiveFixture": "04-meeting-screen-share",
+  "archiveId": "ar-44444444-4444-7444-8444-444444444441",
+  "originId": "origin-44444444-4444-7444-8444-444444444441",
+  "captureId": "cap-44444444-4444-7444-8444-444444444441",
+  "messages": [
+    {
+      "kind": "open",
+      "epoch": 1
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 0,
+      "recordDigest": "0e3ae84129341a20b80c010554b77c408e797ca68fdb744dcb09019cc7c3c120",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444441",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.media-observation",
+        "payloadSchema": "https://jazz.dev/schema/media-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444441",
+        "streamSequence": 0,
+        "capturedAt": "2026-07-22T12:00:03.120Z",
+        "occurredAt": "2026-07-22T12:00:00.000Z",
+        "monotonicTime": {
+          "ticks": "0",
+          "unit": "nanosecond",
+          "clockId": "meeting-video-pts",
+          "clockDomainId": "meeting-video-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444441",
+            "role": "media-clock"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [
+          {
+            "artifactId": "art-44444444-4444-7444-8444-444444444441",
+            "role": "screen_share_video"
+          }
+        ],
+        "payload": {
+          "schemaVersion": 1,
+          "segmentId": "video-segment-0",
+          "trackId": "screen-track-1",
+          "mediaKind": "screen_share_video",
+          "artifactId": "art-44444444-4444-7444-8444-444444444441",
+          "artifactRole": "screen_share_video",
+          "sourceTime": {
+            "startTicks": "0",
+            "endTicks": "3000000000",
+            "unit": "nanosecond",
+            "clockId": "meeting-video-pts",
+            "clockDomainId": "meeting-video-domain",
+            "bootId": "meeting-epoch-a",
+            "uncertaintyMillis": 80
+          },
+          "attribution": {
+            "status": "unknown",
+            "reason": "screen-share media did not bind the performer to an authenticated participant"
+          }
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444441"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 80
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 1,
+      "recordDigest": "ef60ef86bd2b3899b89159a0e66e96c6f2b63ce39dc38ee40b46d93a5f29d311",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444443",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.media-observation",
+        "payloadSchema": "https://jazz.dev/schema/media-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444441",
+        "streamSequence": 2,
+        "capturedAt": "2026-07-22T12:00:09.190Z",
+        "occurredAt": "2026-07-22T12:00:06.000Z",
+        "monotonicTime": {
+          "ticks": "6000000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-video-pts",
+          "clockDomainId": "meeting-video-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444441",
+            "role": "media-clock"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [
+          {
+            "artifactId": "art-44444444-4444-7444-8444-444444444441",
+            "role": "screen_share_video"
+          }
+        ],
+        "payload": {
+          "schemaVersion": 1,
+          "segmentId": "video-segment-2",
+          "trackId": "screen-track-1",
+          "mediaKind": "screen_share_video",
+          "artifactId": "art-44444444-4444-7444-8444-444444444441",
+          "artifactRole": "screen_share_video",
+          "sourceTime": {
+            "startTicks": "6000000000",
+            "endTicks": "9000000000",
+            "unit": "nanosecond",
+            "clockId": "meeting-video-pts",
+            "clockDomainId": "meeting-video-domain",
+            "bootId": "meeting-epoch-a",
+            "uncertaintyMillis": 80
+          },
+          "attribution": {
+            "status": "unknown",
+            "reason": "screen-share media did not bind the performer to an authenticated participant"
+          }
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444441"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 80
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 2,
+      "recordDigest": "90d9e354d05153fa545d34fdb9fe16d5ff6feb18e894fecb8bf8326a977c1916",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444444",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.media-observation",
+        "payloadSchema": "https://jazz.dev/schema/media-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444442",
+        "streamSequence": 0,
+        "capturedAt": "2026-07-22T12:00:09.230Z",
+        "occurredAt": "2026-07-22T12:00:00.000Z",
+        "monotonicTime": {
+          "ticks": "0",
+          "unit": "nanosecond",
+          "clockId": "meeting-audio-samples",
+          "clockDomainId": "meeting-audio-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444442",
+            "role": "media-clock"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "speaker",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [
+          {
+            "artifactId": "art-44444444-4444-7444-8444-444444444442",
+            "role": "meeting_audio"
+          }
+        ],
+        "payload": {
+          "schemaVersion": 1,
+          "segmentId": "audio-segment-0",
+          "trackId": "audio-track-1",
+          "mediaKind": "meeting_audio",
+          "artifactId": "art-44444444-4444-7444-8444-444444444442",
+          "artifactRole": "meeting_audio",
+          "sourceTime": {
+            "startTicks": "0",
+            "endTicks": "9000000000",
+            "unit": "nanosecond",
+            "clockId": "meeting-audio-samples",
+            "clockDomainId": "meeting-audio-domain",
+            "bootId": "meeting-epoch-a",
+            "uncertaintyMillis": 40
+          },
+          "attribution": {
+            "status": "unknown",
+            "reason": "audio track carried no verified speaker identity"
+          }
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444442"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 40
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 3,
+      "recordDigest": "b8ea68ddc2cb54c01b0d92e37c3f922ebaaa29c94370c6dfdfb6849ccd0a6ef0",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444446",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 0,
+        "capturedAt": "2026-07-22T12:00:00.050Z",
+        "occurredAt": "2026-07-22T12:00:00.000Z",
+        "monotonicTime": {
+          "ticks": "0",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "participant",
+            "basis": "declared",
+            "method": "meeting_consent"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-consent-1",
+          "eventType": "consent_granted",
+          "consent": {
+            "status": "granted",
+            "policyVersion": "meeting-consent-v1",
+            "modalities": [
+              "meeting_audio",
+              "meeting_metadata",
+              "screen_share_video",
+              "transcript"
+            ]
+          }
+        },
+        "provenance": {
+          "factClass": "declared",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 4,
+      "recordDigest": "0c147acf4bba7da9298f83e95fffac0456861aedf081a80407e350c528439e9f",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444447",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 1,
+        "capturedAt": "2026-07-22T12:00:00.060Z",
+        "occurredAt": "2026-07-22T12:00:00.000Z",
+        "monotonicTime": {
+          "ticks": "0",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444441",
+            "role": "producer",
+            "basis": "observed",
+            "method": "provider_event"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-connect-1",
+          "eventType": "producer_connected",
+          "connectionEpoch": 1
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 5,
+      "recordDigest": "6cf7e91f9eec2278c22f84820f073f22eb0841f681b5c9edb40162c495391d2c",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444448",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 2,
+        "capturedAt": "2026-07-22T12:00:00.070Z",
+        "occurredAt": "2026-07-22T12:00:00.010Z",
+        "monotonicTime": {
+          "ticks": "10000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "participant",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-participant-join-1",
+          "eventType": "participant_joined",
+          "participantAttribution": {
+            "status": "unknown",
+            "reason": "meeting metadata did not bind presence to a verified participant"
+          },
+          "participantInstanceId": "meeting-participant-opaque-1"
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "partial",
+          "reasons": [
+            "participant_identity_unavailable"
+          ],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 6,
+      "recordDigest": "0680f37b61b42f5ded184bbd8bdc29981a5a34794972de36abf16f7bc2432982",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444449",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 3,
+        "capturedAt": "2026-07-22T12:00:00.080Z",
+        "occurredAt": "2026-07-22T12:00:00.020Z",
+        "monotonicTime": {
+          "ticks": "20000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [
+          "l-44444444-4444-7444-8444-444444444441"
+        ],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-share-start-1",
+          "eventType": "screen_share_started",
+          "trackId": "screen-track-1"
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 1,
+      "deliverySequence": 7,
+      "recordDigest": "d0e7ea46323e06555d43855f283b0b66116faa19cfd2fbd28807c1e9699d7590",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-44444444444a",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 4,
+        "capturedAt": "2026-07-22T12:00:04.050Z",
+        "occurredAt": "2026-07-22T12:00:04.000Z",
+        "monotonicTime": {
+          "ticks": "4000000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444441",
+            "role": "producer",
+            "basis": "observed",
+            "method": "provider_event"
+          }
+        ],
+        "labelRefs": [
+          "l-44444444-4444-7444-8444-444444444441"
+        ],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-disconnect-1",
+          "eventType": "producer_disconnected",
+          "connectionEpoch": 1
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "partial",
+          "reasons": [
+            "source_unavailable"
+          ],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "artifact",
+      "epoch": 1,
+      "deliverySequence": 8,
+      "artifactDigest": "769b7c02796732d1492842f6415b601088b6c942f49f9ba3f434166b523f4cbc",
+      "artifact": {
+        "schemaVersion": 1,
+        "artifactId": "art-44444444-4444-7444-8444-444444444441",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "origin": "captured",
+        "kind": "screen_share_video",
+        "content": {
+          "path": "blobs/sha256/fe/fe68d1a8be9a4b352dda61dc540a12140094a458c2fd0cf454560e816f25238a",
+          "mediaType": "video/mp4",
+          "byteLength": 1911,
+          "sha256": "fe68d1a8be9a4b352dda61dc540a12140094a458c2fd0cf454560e816f25238a"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444441",
+            "role": "capture"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "observationRefs": [
+          "obs-44444444-4444-7444-8444-444444444441",
+          "obs-44444444-4444-7444-8444-444444444442",
+          "obs-44444444-4444-7444-8444-444444444443"
+        ],
+        "captureInterval": {
+          "startedAt": "2026-07-22T12:00:00.000Z",
+          "endedAt": "2026-07-22T12:00:09.000Z"
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444441"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 80
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "artifact",
+      "epoch": 1,
+      "deliverySequence": 9,
+      "artifactDigest": "e579a9327e1de3013abc03555e302235a4d33c1fcabf7b4b659826a04448014b",
+      "artifact": {
+        "schemaVersion": 1,
+        "artifactId": "art-44444444-4444-7444-8444-444444444442",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "origin": "captured",
+        "kind": "meeting_audio",
+        "content": {
+          "path": "blobs/sha256/13/136af3d4bef735efdd37ee5a27b8a90cc2b54accb29fa5ed4315c4ddfb9f364c",
+          "mediaType": "audio/ogg",
+          "byteLength": 9575,
+          "sha256": "136af3d4bef735efdd37ee5a27b8a90cc2b54accb29fa5ed4315c4ddfb9f364c"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444442",
+            "role": "capture"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "speaker",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "observationRefs": [
+          "obs-44444444-4444-7444-8444-444444444444"
+        ],
+        "captureInterval": {
+          "startedAt": "2026-07-22T12:00:00.000Z",
+          "endedAt": "2026-07-22T12:00:09.000Z"
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444442"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 40
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "blob_verified",
+      "epoch": 1,
+      "artifactId": "art-44444444-4444-7444-8444-444444444441",
+      "contentSha256": "fe68d1a8be9a4b352dda61dc540a12140094a458c2fd0cf454560e816f25238a",
+      "byteLength": 1911,
+      "durable": true
+    },
+    {
+      "kind": "commit",
+      "epoch": 1,
+      "deliverySequence": 10,
+      "commitDigest": "f2c924ff4e37d157850fe92394b70e3aeee1a839de5046a10bd1c4fddf8ce9cd",
+      "commit": {
+        "schemaVersion": 1,
+        "commitId": "cmt-44444444-4444-7444-8444-444444444441",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "revision": 1,
+        "endedAt": "2026-07-22T12:00:13.000Z",
+        "streamSummaries": [
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444441",
+            "firstSequence": 0,
+            "lastSequence": 2,
+            "observationCount": 3
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444442",
+            "firstSequence": 0,
+            "lastSequence": 0,
+            "observationCount": 1
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444443",
+            "firstSequence": 0,
+            "lastSequence": 0,
+            "observationCount": 1
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444444",
+            "firstSequence": 0,
+            "lastSequence": 7,
+            "observationCount": 8
+          }
+        ],
+        "orderedObservationDigest": "a87da42c7ed456a621e9ab812bb5e6a01420e72c4550bcd97eca6fbb921825f9",
+        "artifactCount": 3,
+        "artifactSetDigest": "8865032b11fbb7b3a84dd3baafc6252293ac8f762280680cb7c2c6e883959b8e",
+        "gaps": []
+      }
+    },
+    {
+      "kind": "ack",
+      "epoch": 1,
+      "acknowledgedThroughDeliverySequence": 10,
+      "state": {
+        "streams": [
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444441",
+            "nextSequence": 1,
+            "acceptedBeyond": [
+              2
+            ]
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444442",
+            "nextSequence": 1,
+            "acceptedBeyond": []
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444443",
+            "nextSequence": 0,
+            "acceptedBeyond": []
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444444",
+            "nextSequence": 5,
+            "acceptedBeyond": []
+          }
+        ],
+        "artifactIds": [
+          "art-44444444-4444-7444-8444-444444444441"
+        ],
+        "commitStatus": "incomplete"
+      }
+    },
+    {
+      "kind": "open",
+      "epoch": 2,
+      "resumesEpoch": 1,
+      "resume": {
+        "streams": [
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444441",
+            "nextSequence": 1,
+            "acceptedBeyond": [
+              2
+            ]
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444442",
+            "nextSequence": 1,
+            "acceptedBeyond": []
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444443",
+            "nextSequence": 0,
+            "acceptedBeyond": []
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444444",
+            "nextSequence": 5,
+            "acceptedBeyond": []
+          }
+        ],
+        "artifactIds": [
+          "art-44444444-4444-7444-8444-444444444441"
+        ],
+        "commitStatus": "incomplete"
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 0,
+      "recordDigest": "ef60ef86bd2b3899b89159a0e66e96c6f2b63ce39dc38ee40b46d93a5f29d311",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444443",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.media-observation",
+        "payloadSchema": "https://jazz.dev/schema/media-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444441",
+        "streamSequence": 2,
+        "capturedAt": "2026-07-22T12:00:09.190Z",
+        "occurredAt": "2026-07-22T12:00:06.000Z",
+        "monotonicTime": {
+          "ticks": "6000000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-video-pts",
+          "clockDomainId": "meeting-video-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444441",
+            "role": "media-clock"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [
+          {
+            "artifactId": "art-44444444-4444-7444-8444-444444444441",
+            "role": "screen_share_video"
+          }
+        ],
+        "payload": {
+          "schemaVersion": 1,
+          "segmentId": "video-segment-2",
+          "trackId": "screen-track-1",
+          "mediaKind": "screen_share_video",
+          "artifactId": "art-44444444-4444-7444-8444-444444444441",
+          "artifactRole": "screen_share_video",
+          "sourceTime": {
+            "startTicks": "6000000000",
+            "endTicks": "9000000000",
+            "unit": "nanosecond",
+            "clockId": "meeting-video-pts",
+            "clockDomainId": "meeting-video-domain",
+            "bootId": "meeting-epoch-a",
+            "uncertaintyMillis": 80
+          },
+          "attribution": {
+            "status": "unknown",
+            "reason": "screen-share media did not bind the performer to an authenticated participant"
+          }
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444441"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 80
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 1,
+      "recordDigest": "90d9e354d05153fa545d34fdb9fe16d5ff6feb18e894fecb8bf8326a977c1916",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444444",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.media-observation",
+        "payloadSchema": "https://jazz.dev/schema/media-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444442",
+        "streamSequence": 0,
+        "capturedAt": "2026-07-22T12:00:09.230Z",
+        "occurredAt": "2026-07-22T12:00:00.000Z",
+        "monotonicTime": {
+          "ticks": "0",
+          "unit": "nanosecond",
+          "clockId": "meeting-audio-samples",
+          "clockDomainId": "meeting-audio-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444442",
+            "role": "media-clock"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "speaker",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [
+          {
+            "artifactId": "art-44444444-4444-7444-8444-444444444442",
+            "role": "meeting_audio"
+          }
+        ],
+        "payload": {
+          "schemaVersion": 1,
+          "segmentId": "audio-segment-0",
+          "trackId": "audio-track-1",
+          "mediaKind": "meeting_audio",
+          "artifactId": "art-44444444-4444-7444-8444-444444444442",
+          "artifactRole": "meeting_audio",
+          "sourceTime": {
+            "startTicks": "0",
+            "endTicks": "9000000000",
+            "unit": "nanosecond",
+            "clockId": "meeting-audio-samples",
+            "clockDomainId": "meeting-audio-domain",
+            "bootId": "meeting-epoch-a",
+            "uncertaintyMillis": 40
+          },
+          "attribution": {
+            "status": "unknown",
+            "reason": "audio track carried no verified speaker identity"
+          }
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444442"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 40
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 2,
+      "recordDigest": "d0e7ea46323e06555d43855f283b0b66116faa19cfd2fbd28807c1e9699d7590",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-44444444444a",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 4,
+        "capturedAt": "2026-07-22T12:00:04.050Z",
+        "occurredAt": "2026-07-22T12:00:04.000Z",
+        "monotonicTime": {
+          "ticks": "4000000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444441",
+            "role": "producer",
+            "basis": "observed",
+            "method": "provider_event"
+          }
+        ],
+        "labelRefs": [
+          "l-44444444-4444-7444-8444-444444444441"
+        ],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-disconnect-1",
+          "eventType": "producer_disconnected",
+          "connectionEpoch": 1
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "partial",
+          "reasons": [
+            "source_unavailable"
+          ],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "artifact",
+      "epoch": 2,
+      "deliverySequence": 3,
+      "artifactDigest": "769b7c02796732d1492842f6415b601088b6c942f49f9ba3f434166b523f4cbc",
+      "artifact": {
+        "schemaVersion": 1,
+        "artifactId": "art-44444444-4444-7444-8444-444444444441",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "origin": "captured",
+        "kind": "screen_share_video",
+        "content": {
+          "path": "blobs/sha256/fe/fe68d1a8be9a4b352dda61dc540a12140094a458c2fd0cf454560e816f25238a",
+          "mediaType": "video/mp4",
+          "byteLength": 1911,
+          "sha256": "fe68d1a8be9a4b352dda61dc540a12140094a458c2fd0cf454560e816f25238a"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444441",
+            "role": "capture"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "observationRefs": [
+          "obs-44444444-4444-7444-8444-444444444441",
+          "obs-44444444-4444-7444-8444-444444444442",
+          "obs-44444444-4444-7444-8444-444444444443"
+        ],
+        "captureInterval": {
+          "startedAt": "2026-07-22T12:00:00.000Z",
+          "endedAt": "2026-07-22T12:00:09.000Z"
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444441"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 80
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 4,
+      "recordDigest": "bdabf2eebea0abaeddeea0cd329e8feacaa59a2556c038566b4a87f90b474cff",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444442",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.media-observation",
+        "payloadSchema": "https://jazz.dev/schema/media-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444441",
+        "streamSequence": 1,
+        "capturedAt": "2026-07-22T12:00:06.180Z",
+        "occurredAt": "2026-07-22T12:00:03.000Z",
+        "monotonicTime": {
+          "ticks": "3000000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-video-pts",
+          "clockDomainId": "meeting-video-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444441",
+            "role": "media-clock"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [
+          {
+            "artifactId": "art-44444444-4444-7444-8444-444444444441",
+            "role": "screen_share_video"
+          }
+        ],
+        "payload": {
+          "schemaVersion": 1,
+          "segmentId": "video-segment-1",
+          "trackId": "screen-track-1",
+          "mediaKind": "screen_share_video",
+          "artifactId": "art-44444444-4444-7444-8444-444444444441",
+          "artifactRole": "screen_share_video",
+          "sourceTime": {
+            "startTicks": "3000000000",
+            "endTicks": "6000000000",
+            "unit": "nanosecond",
+            "clockId": "meeting-video-pts",
+            "clockDomainId": "meeting-video-domain",
+            "bootId": "meeting-epoch-a",
+            "uncertaintyMillis": 80
+          },
+          "attribution": {
+            "status": "unknown",
+            "reason": "screen-share media did not bind the performer to an authenticated participant"
+          }
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444441"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 80
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 5,
+      "recordDigest": "90d8ff7a89d3fe9ae865aa018687470d5b44ae15154bacd41e421abb9455ff09",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-44444444444b",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 5,
+        "capturedAt": "2026-07-22T12:00:04.250Z",
+        "occurredAt": "2026-07-22T12:00:04.200Z",
+        "monotonicTime": {
+          "ticks": "4200000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444441",
+            "role": "producer",
+            "basis": "observed",
+            "method": "provider_event"
+          }
+        ],
+        "labelRefs": [
+          "l-44444444-4444-7444-8444-444444444441"
+        ],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-connect-2",
+          "eventType": "producer_connected",
+          "connectionEpoch": 2,
+          "resumesEpoch": 1
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 6,
+      "recordDigest": "5bfd4d71d86e239204dc6103f8d5f5eefe587d8c73fa597f9d5d222e6b0f2bbc",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-44444444444c",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 6,
+        "capturedAt": "2026-07-22T12:00:09.050Z",
+        "occurredAt": "2026-07-22T12:00:09.000Z",
+        "monotonicTime": {
+          "ticks": "9000000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "performer",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [
+          "l-44444444-4444-7444-8444-444444444441"
+        ],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-share-stop-1",
+          "eventType": "screen_share_stopped",
+          "trackId": "screen-track-1"
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "complete",
+          "reasons": [],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 7,
+      "recordDigest": "8fff5323c7327139e0b9ffae4b68d8041584d4a721816679bf5f23806fd08797",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-44444444444d",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.meeting-control-observation",
+        "payloadSchema": "https://jazz.dev/schema/meeting-control-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444444",
+        "streamSequence": 7,
+        "capturedAt": "2026-07-22T12:00:09.150Z",
+        "occurredAt": "2026-07-22T12:00:09.100Z",
+        "monotonicTime": {
+          "ticks": "9100000000",
+          "unit": "nanosecond",
+          "clockId": "meeting-control-clock",
+          "clockDomainId": "meeting-control-domain",
+          "bootId": "meeting-epoch-a"
+        },
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444444",
+            "role": "meeting-control"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "participant",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [],
+        "payload": {
+          "schemaVersion": 1,
+          "controlEventId": "meeting-control-participant-left-1",
+          "eventType": "participant_left",
+          "participantAttribution": {
+            "status": "unknown",
+            "reason": "meeting metadata did not bind presence to a verified participant"
+          },
+          "participantInstanceId": "meeting-participant-opaque-1"
+        },
+        "provenance": {
+          "factClass": "observed",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444444"
+          ]
+        },
+        "quality": {
+          "status": "partial",
+          "reasons": [
+            "participant_identity_unavailable"
+          ],
+          "timingErrorMillis": 120
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "observation",
+      "epoch": 2,
+      "deliverySequence": 8,
+      "recordDigest": "2c8f298dc051ec08e357251b0ab9c68659493615ae7bbfb770a88096c025a498",
+      "record": {
+        "schemaVersion": 1,
+        "observationId": "obs-44444444-4444-7444-8444-444444444445",
+        "originId": "origin-44444444-4444-7444-8444-444444444441",
+        "recordType": "jazz.media-observation",
+        "payloadSchema": "https://jazz.dev/schema/media-observation.schema.json",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "streamId": "stream-44444444-4444-7444-8444-444444444443",
+        "streamSequence": 0,
+        "capturedAt": "2026-07-22T12:00:12.500Z",
+        "occurredAt": "2026-07-22T12:00:00.000Z",
+        "monotonicTime": {
+          "ticks": "0",
+          "unit": "nanosecond",
+          "clockId": "transcript-segment-clock",
+          "clockDomainId": "transcript-domain",
+          "bootId": "transcription-job-a"
+        },
+        "enrichedAt": "2026-07-22T12:00:12.500Z",
+        "contextRefs": {
+          "meeting": {
+            "namespace": "meeting.external-id",
+            "value": "meeting-opaque-42"
+          }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444443",
+            "role": "media-clock"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "speaker",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "artifactRefs": [
+          {
+            "artifactId": "art-44444444-4444-7444-8444-444444444443",
+            "role": "transcript"
+          }
+        ],
+        "payload": {
+          "schemaVersion": 1,
+          "segmentId": "transcript-segment-0",
+          "trackId": "transcript-track-1",
+          "mediaKind": "transcript",
+          "artifactId": "art-44444444-4444-7444-8444-444444444443",
+          "artifactRole": "transcript",
+          "sourceTime": {
+            "startTicks": "0",
+            "endTicks": "9000000000",
+            "unit": "nanosecond",
+            "clockId": "transcript-segment-clock",
+            "clockDomainId": "transcript-domain",
+            "bootId": "transcription-job-a",
+            "uncertaintyMillis": 500
+          },
+          "attribution": {
+            "status": "unknown",
+            "reason": "transcript source did not provide verified diarization"
+          },
+          "transcript": {
+            "text": "I open the invoice queue and check the due date.",
+            "language": "en",
+            "confidence": 0.91
+          }
+        },
+        "provenance": {
+          "factClass": "imported",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444443"
+          ],
+          "transformations": [
+            {
+              "name": "source-transcript-import",
+              "version": "1",
+              "at": "2026-07-22T12:00:12.500Z"
+            }
+          ]
+        },
+        "quality": {
+          "status": "partial",
+          "reasons": [
+            "speaker_identity_unavailable"
+          ],
+          "timingErrorMillis": 500,
+          "confidence": 0.91
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "artifact",
+      "epoch": 2,
+      "deliverySequence": 9,
+      "artifactDigest": "8409f3bd547dd346e93ca667ab7882fdc50f50ed324d6489fcbfb098c54002c9",
+      "artifact": {
+        "schemaVersion": 1,
+        "artifactId": "art-44444444-4444-7444-8444-444444444443",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "origin": "imported",
+        "kind": "transcript",
+        "content": {
+          "path": "blobs/sha256/2c/2c845830e830e1d1d3592a8301a84c01c1350c4af6f095d45fee09a3f6be094b",
+          "mediaType": "text/vtt",
+          "byteLength": 87,
+          "sha256": "2c845830e830e1d1d3592a8301a84c01c1350c4af6f095d45fee09a3f6be094b"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "src-44444444-4444-7444-8444-444444444443",
+            "role": "capture"
+          }
+        ],
+        "actorRefs": [
+          {
+            "actorId": "actor-44444444-4444-7444-8444-444444444442",
+            "role": "speaker",
+            "basis": "observed",
+            "method": "track_presence"
+          }
+        ],
+        "labelRefs": [],
+        "observationRefs": [
+          "obs-44444444-4444-7444-8444-444444444445"
+        ],
+        "captureInterval": {
+          "startedAt": "2026-07-22T12:00:00.000Z",
+          "endedAt": "2026-07-22T12:00:09.000Z"
+        },
+        "provenance": {
+          "factClass": "imported",
+          "sources": [
+            "src-44444444-4444-7444-8444-444444444443"
+          ],
+          "transformations": [
+            {
+              "name": "source-transcript-import",
+              "version": "1",
+              "at": "2026-07-22T12:00:12.500Z"
+            }
+          ]
+        },
+        "quality": {
+          "status": "partial",
+          "reasons": [
+            "speaker_identity_unavailable"
+          ],
+          "timingErrorMillis": 500,
+          "confidence": 0.91
+        },
+        "privacy": {
+          "status": "captured",
+          "policyVersion": "meeting-consent-v1",
+          "redactions": []
+        }
+      }
+    },
+    {
+      "kind": "blob_verified",
+      "epoch": 2,
+      "artifactId": "art-44444444-4444-7444-8444-444444444442",
+      "contentSha256": "136af3d4bef735efdd37ee5a27b8a90cc2b54accb29fa5ed4315c4ddfb9f364c",
+      "byteLength": 9575,
+      "durable": true
+    },
+    {
+      "kind": "blob_verified",
+      "epoch": 2,
+      "artifactId": "art-44444444-4444-7444-8444-444444444443",
+      "contentSha256": "2c845830e830e1d1d3592a8301a84c01c1350c4af6f095d45fee09a3f6be094b",
+      "byteLength": 87,
+      "durable": true
+    },
+    {
+      "kind": "commit",
+      "epoch": 2,
+      "deliverySequence": 10,
+      "commitDigest": "f2c924ff4e37d157850fe92394b70e3aeee1a839de5046a10bd1c4fddf8ce9cd",
+      "commit": {
+        "schemaVersion": 1,
+        "commitId": "cmt-44444444-4444-7444-8444-444444444441",
+        "captureId": "cap-44444444-4444-7444-8444-444444444441",
+        "revision": 1,
+        "endedAt": "2026-07-22T12:00:13.000Z",
+        "streamSummaries": [
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444441",
+            "firstSequence": 0,
+            "lastSequence": 2,
+            "observationCount": 3
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444442",
+            "firstSequence": 0,
+            "lastSequence": 0,
+            "observationCount": 1
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444443",
+            "firstSequence": 0,
+            "lastSequence": 0,
+            "observationCount": 1
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444444",
+            "firstSequence": 0,
+            "lastSequence": 7,
+            "observationCount": 8
+          }
+        ],
+        "orderedObservationDigest": "a87da42c7ed456a621e9ab812bb5e6a01420e72c4550bcd97eca6fbb921825f9",
+        "artifactCount": 3,
+        "artifactSetDigest": "8865032b11fbb7b3a84dd3baafc6252293ac8f762280680cb7c2c6e883959b8e",
+        "gaps": []
+      }
+    },
+    {
+      "kind": "ack",
+      "epoch": 2,
+      "acknowledgedThroughDeliverySequence": 10,
+      "state": {
+        "streams": [
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444441",
+            "nextSequence": 3,
+            "acceptedBeyond": []
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444442",
+            "nextSequence": 1,
+            "acceptedBeyond": []
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444443",
+            "nextSequence": 1,
+            "acceptedBeyond": []
+          },
+          {
+            "streamId": "stream-44444444-4444-7444-8444-444444444444",
+            "nextSequence": 8,
+            "acceptedBeyond": []
+          }
+        ],
+        "artifactIds": [
+          "art-44444444-4444-7444-8444-444444444441",
+          "art-44444444-4444-7444-8444-444444444442",
+          "art-44444444-4444-7444-8444-444444444443"
+        ],
+        "commitStatus": "accepted"
+      }
+    }
+  ],
+  "expectedOutcome": {
+    "connectionEpochs": 2,
+    "observationDeliveries": 16,
+    "uniqueObservations": 13,
+    "duplicateObservationDeliveries": 3,
+    "artifactDeliveries": 4,
+    "uniqueArtifacts": 3,
+    "duplicateArtifactDeliveries": 1,
+    "lateObservationIds": [
+      "obs-44444444-4444-7444-8444-444444444442"
+    ],
+    "finalCommitStatus": "accepted"
+  }
+}

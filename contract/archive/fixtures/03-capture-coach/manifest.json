@@ -1,0 +1,123 @@
+{
+  "format": "dev.jazz.archive",
+  "formatVersion": 1,
+  "archiveId": "ar-33333333-3333-7333-8333-333333333333",
+  "originId": "origin-33333333-3333-7333-8333-333333333333",
+  "enrolledDeviceIdentity": {
+    "namespace": "jazz.device",
+    "value": "fixture-device-03"
+  },
+  "revision": 1,
+  "state": "finalized",
+  "createdAt": "2026-07-22T10:00:00Z",
+  "snapshotAt": "2026-07-22T10:02:00Z",
+  "contentDigest": "efe61c8a39a57487dceba534839c37998b2052dd63fc5e93bf42307b622b8b85",
+  "producer": {
+    "name": "Jazz Capture",
+    "version": "1.0.0-fixture",
+    "platform": "macOS"
+  },
+  "originScope": {
+    "namespace": "fixture.tenant",
+    "value": "coach-demo"
+  },
+  "contracts": [
+    {
+      "recordType": "jazz.activity-event",
+      "schemaId": "https://jazz.dev/schema/activity-event.schema.json",
+      "schemaVersion": 1
+    },
+    {
+      "recordType": "jazz.coach-interaction",
+      "schemaId": "https://jazz.dev/schema/coach-interaction.schema.json",
+      "schemaVersion": 1
+    }
+  ],
+  "actors": [
+    {
+      "actorId": "actor-33333333-3333-7333-8333-333333333333",
+      "kind": "human",
+      "identityStatus": "identified",
+      "displayName": "Recorder",
+      "externalIdentities": [
+        {
+          "namespace": "oidc.subject",
+          "value": "fixture-user-03"
+        }
+      ],
+      "provenance": {
+        "factClass": "declared",
+        "sources": []
+      }
+    }
+  ],
+  "sources": [
+    {
+      "sourceId": "src-33000000-0000-7000-8000-000000000001",
+      "kind": "macos.capture-controller",
+      "actorId": "actor-33333333-3333-7333-8333-333333333333",
+      "producer": {
+        "name": "Jazz Capture",
+        "version": "1.0.0-fixture",
+        "platform": "macOS"
+      },
+      "clock": {
+        "wallClock": "system",
+        "monotonicClock": "mach_continuous_time",
+        "clockDomainId": "clock-fixture-03",
+        "bootId": "boot-fixture-03",
+        "timeZone": "Europe/Prague"
+      },
+      "capabilities": [
+        "coach_interaction_audit",
+        "labels",
+        "session_boundaries"
+      ],
+      "unavailableCapabilities": [],
+      "provenance": {
+        "factClass": "observed",
+        "sources": []
+      }
+    },
+    {
+      "sourceId": "src-33000000-0000-7000-8000-000000000002",
+      "kind": "jazz.capture-coach",
+      "producer": {
+        "name": "Jazz Capture Coach",
+        "version": "fixture-policy-v1",
+        "platform": "server"
+      },
+      "clock": {
+        "wallClock": "server"
+      },
+      "capabilities": [
+        "advisory_prompts"
+      ],
+      "unavailableCapabilities": [],
+      "provenance": {
+        "factClass": "observed",
+        "sources": []
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "captureId": "cap-33333333-3333-7333-8333-333333333333",
+      "legacySessionId": "s-33333333-3333-7333-8333-333333333333",
+      "path": "sessions/s-33333333-3333-7333-8333-333333333333/session.json"
+    }
+  ],
+  "captureCommits": [
+    {
+      "commitId": "cmt-33333333-3333-7333-8333-333333333333",
+      "captureId": "cap-33333333-3333-7333-8333-333333333333",
+      "path": "sessions/s-33333333-3333-7333-8333-333333333333/commit.json",
+      "digest": "569846deca67e6acf606245eb11096f1fd8ca8c218a79d9096846fb49ab3754e"
+    }
+  ],
+  "inventory": {
+    "path": "inventory.json",
+    "algorithm": "sha256",
+    "digest": "f090b55a9f7b68b83f8e487365581861e4491f469b692945b08ba5d587645a51"
+  }
+}

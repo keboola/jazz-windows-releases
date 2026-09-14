@@ -1,0 +1,14 @@
+<Window x:Class="JazzCapture.OnboardingWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Jazz Capture status" SizeToContent="WidthAndHeight" MinWidth="520" MaxWidth="560" WindowStartupLocation="CenterScreen">
+  <StackPanel Margin="24">
+    <TextBlock FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding Headline}" />
+    <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding CaptureAtLaunchDetail}" />
+    <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding Controls}" />
+    <TextBlock Margin="0,12,0,0" Text="{Binding Modalities}" />
+    <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="{Binding Exclusions}" />
+    <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding CaptureDirectory}" />
+    <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="{Binding QueueDirectory}" />
+    <TextBlock Margin="0,12,0,0" Text="Version" /><TextBlock Text="{Binding Version}" />
+    <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding UpdateStatus}" />
+    <Button Margin="0,20,0,0" Width="100" HorizontalAlignment="Right" IsDefault="True" Click="Close_Click" Content="Close" />
+  </StackPanel>
+</Window>

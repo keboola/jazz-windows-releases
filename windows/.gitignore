@@ -1,0 +1,5 @@
+bin/
+obj/
+*.user
+TestResults/
+provisioning/device-bundle.json

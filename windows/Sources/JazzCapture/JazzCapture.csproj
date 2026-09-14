@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The installer's single source of version truth. Imported here so the file version stamped on
+       JazzCapture.exe and the version the MSI shows in Add/Remove Programs cannot disagree; a user
+       comparing the two is usually a user trying to work out which build they are running. -->
+  <Import Project="..\..\installer\Jazz.Version.props" />
+
+  <PropertyGroup>
+    <Version>$(JazzProductVersion)</Version>
+    <AssemblyVersion>$(JazzProductVersion).0</AssemblyVersion>
+    <FileVersion>$(JazzProductVersion).0</FileVersion>
+    <InformationalVersion>$(JazzProductVersion)</InformationalVersion>
+    <JazzProducerVersion>$(JazzProductVersion)</JazzProducerVersion>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>JazzCapture</RootNamespace>
+    <AssemblyName>JazzCapture</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- Lets the WPF/WinForms desktop targets restore and compile on macOS/Linux; the app only
+         actually runs on Windows 11 (verified live in Task 10). -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- Win32 struct marshalling for the low-level hooks and UI Automation interop. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="JazzProducerVersion" Value="$(JazzProducerVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JazzCaptureCore\JazzCaptureCore.csproj" />
+    <!-- The enrollment trust boundary. It is referenced but not yet wired into the tray UI: the
+         host still has to supply a CNG-backed IDeviceEnrollmentKeyBackend and an HTTPS
+         IDeviceRedemptionTransport, neither of which can be written or verified without a real
+         Windows machine. -->
+    <ProjectReference Include="..\JazzEnrollmentSecurity\JazzEnrollmentSecurity.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\*.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The interop is deliberately internal, but the on-device probe has to reach it: the COM
+         vtable slots it declares cannot be checked by the compiler, so a real machine enumerating
+         a live provider is the only way to tell a correct slot from a wrong one. -->
+    <InternalsVisibleTo Include="JazzUiaProbe" />
+    <InternalsVisibleTo Include="JazzAudioProbe" />
+    <InternalsVisibleTo Include="JazzCaptureHostTests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ApplicationIcon>Assets\tray-idle.ico</ApplicationIcon>
+  </PropertyGroup>
+
+</Project>

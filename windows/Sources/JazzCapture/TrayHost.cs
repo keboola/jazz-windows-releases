@@ -1,0 +1,1191 @@
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Windows.Forms;
+using System.Windows.Threading;
+using JazzCaptureCore;
+using JazzCaptureCore.Archive;
+using JazzCaptureCore.Delivery;
+using JazzCaptureCore.Input;
+using JazzCapture.Capture;
+using JazzCapture.Interop;
+
+namespace JazzCapture;
+
+/// <summary>
+/// The tray application: a <see cref="NotifyIcon"/> whose menu starts and stops capture, shows the
+/// recording state and event count, opens local review, and quits (ANNEX-HOST section 6).
+/// </summary>
+/// <remarks>
+/// <para>
+/// The host owns every moving part for one capture — the engine, the input hooks, the foreground
+/// tracker, the UI Automation worker, the coordinator, and the watchdog — and wires them together on
+/// start and tears them down on stop. The foreground WinEvent hook is installed here, on the WPF UI
+/// thread, because that is the thread whose dispatcher pumps messages.
+/// </para>
+/// <para>
+/// Stopping disposes all of them. Only the engine outlives the capture, because local review reads
+/// the committed archive from it and the Confirm / Reject decision still has to reach it.
+/// </para>
+/// <para>
+/// The tray menu is built once and updated in place. The heartbeat refreshes the status line every
+/// few seconds while recording, and rebuilding the strip there would dispose the menu the user
+/// currently has open.
+/// </para>
+/// </remarks>
+public sealed class TrayHost : IDisposable
+{
+    private const string IdleStatus = "Idle";
+    private const string IdleTooltip = "Jazz Capture - idle";
+    private const string RecordingFormat = "REC {0:hh\\:mm\\:ss} - {1} events";
+    private const string ReArmFormat = "! Input hook re-armed {0}x this session";
+    private const string DeclareLabelText = "Label current task... (" + GlobalHotkey.DisplayName + ")";
+    private const string EndLabelFormat = "End label - {0}";
+    private const string OpenLabelFormat = "Label: {0}";
+    private const string MarkSessionEndText = "Mark session end";
+    private const string ExemptAppsText = "Exempt applications";
+    private const string AddRunningAppText = "Add running app";
+    private const string PauseReminderTitle = "Jazz Capture";
+    private const string PauseReminderBody =
+        "Jazz Capture is still paused. If that is intentional, you can ignore this. Resume capture when you want recording to continue.";
+
+    /// <summary>
+    /// The open-label line while the microphone is actually recording. It doubles as the microphone
+    /// indicator, exactly as the macOS client's own label line does: the one place a user looks to
+    /// see what this client thinks it is doing is also where they find out that a microphone is on.
+    /// A separate indicator elsewhere in the menu could be true while this line said nothing.
+    /// </summary>
+    private const string NarratedLabelFormat = "MIC - Label: {0}";
+
+    private const string HotkeyNeedsCaptureFormat = "{0}: start a capture before labelling a task";
+
+    private Settings _settings;
+    // #76: fixed for the life of the process -- set once from the parsed command line, at
+    // construction -- unlike _settings, which TrayHost itself replaces in place. See
+    // CurrentCaptureAtLaunch below for why the two are combined live rather than once here.
+    private readonly bool _captureAtLaunchFromLaunchSwitch;
+    // #60: fixed for the life of the process, exactly like _captureAtLaunchFromLaunchSwitch above --
+    // read once by App.OnStartup and handed in at construction.
+    //
+    // _captureAtLaunchPolicyDetail is diagnostic only, and SettingsWindow does NOT use it to choose
+    // which notice to show. Two review rounds went into getting that right, so it is worth stating
+    // precisely what this field does and does not carry.
+    //
+    // CaptureAtLaunchPolicyStore.DecidingDetail mirrors Resolve's precedence rather than reporting
+    // whichever rank happens to have a detail: a rank that decides Enabled ends the search and
+    // yields null, so a lower rank's malformed or read-failure detail is deliberately suppressed
+    // once a higher one has enforced capture on. What reaches this field is therefore the *deciding*
+    // rank's malformed detail, or -- only when neither policy rank decides anything -- a bare
+    // read-failure detail kept for diagnostics even though nothing is enforced.
+    //
+    // That is why SettingsWindow derives its notice structurally instead, from the resolved Source
+    // and Enabled, in ResolveEnforcedNoticeText: an earlier version keyed off this field's
+    // non-nullness and could render "a setting could not be read" on a machine that was in fact
+    // actively enforced on. Note too that a failed read folds to Absent, which does not disable the
+    // checkbox at all; only a Malformed value does. The field never carries the rejected value
+    // (#62 constraint 2).
+    private readonly CaptureAtLaunchPolicy _captureAtLaunchPolicy;
+    private readonly string? _captureAtLaunchPolicyDetail;
+    // #76 (M-A, refined across two further Copilot review rounds): true only between a manual
+    // Start that just resumed a pause this process could not itself explain (its own effective
+    // value was already false, so some *other* layer -- e.g. a switch on a different shortcut --
+    // must have caused the pause) and the StopCapture call that finally decides that stop's
+    // outcome, which reads and then clears it -- see both call sites' remarks. Without this flag,
+    // such a Start (AfterSuccessfulManualStart is unconditional) followed by such a Stop
+    // (AfterSuccessfulUserStop stays correctly gated on automaticStartConfigured, so it never
+    // manufactures a pause from nothing) would silently erase a pause a switch elsewhere on the
+    // same profile still needed -- a session-scoped echo of the same defect class this issue
+    // exists to close.
+    //
+    // Three properties keep this from over-firing or under-firing: ToggleCapture *assigns* this
+    // flag from a fresh condition on every Start (rather than only ever setting it true), so a
+    // Start whose own effective value is already true -- where the ordinary gated pause/resume
+    // already handles everything correctly -- explicitly clears any stale value left over from an
+    // earlier, unrelated cycle; StopCapture consumes (reads, then resets to false) this flag only
+    // once a stop attempt reaches a final outcome, so it can never survive to affect a second,
+    // later Stop that has nothing to do with the Start that set it; and that reset is deliberately
+    // withheld on a PreservedForRecovery (retryable) outcome, so a "Retry safe stop" click -- which
+    // re-enters StopCapture on the *same* logical stop -- still sees the flag it needs. Deliberately
+    // never persisted and never read outside this process.
+    private bool _resumedAPauseThisSession;
+    private readonly AppIdentityResolver _pickerIdentity = new();
+    private readonly NotifyIcon _icon;
+    private readonly DispatcherTimer _heartbeat;
+    private readonly DispatcherTimer _pauseReminder;
+
+    private readonly ContextMenuStrip _menu = new();
+    private readonly ToolStripMenuItem _statusItem = Label(IdleStatus);
+    private readonly ToolStripMenuItem _labelStatusItem = Label(string.Empty);
+    private readonly ToolStripMenuItem _deliveryItem = Label(string.Empty);
+    private readonly ToolStripMenuItem _provisioningItem = Label("Provisioning: not provisioned");
+    private readonly ToolStripMenuItem _streamingItem = Label("Streaming: up to date");
+    private readonly ToolStripMenuItem _screenshotDeliveryItem = Label("Screenshots: waiting");
+    private readonly ToolStripMenuItem _reArmItem = Label(string.Empty);
+    private readonly ToolStripMenuItem _hotkeyItem = Label(string.Empty);
+    private readonly ToolStripMenuItem _errorItem = Label(string.Empty);
+    private readonly ToolStripMenuItem _captureItem;
+    private readonly ToolStripMenuItem _markSessionEndItem;
+    private readonly ToolStripMenuItem _declareLabelItem;
+    private readonly ToolStripMenuItem _endLabelItem;
+    private readonly ToolStripMenuItem _exemptItem;
+    private readonly ToolStripMenuItem _settingsItem;
+    private readonly ToolStripMenuItem _statusWindowItem;
+    private readonly ToolStripMenuItem _updateItem = Label(string.Empty);
+
+    private CaptureEngine? _engine;
+    private AppIdentityResolver? _identity;
+    private UiaResolver? _uia;
+    private InputHooks? _hooks;
+    private ForegroundTracker? _foreground;
+    private CaptureCoordinator? _coordinator;
+    private HookWatchdog? _watchdog;
+    private ReviewWindow? _review;
+    private ClickHighlightOverlay? _highlight;
+    private WasapiNarrationSource? _narration;
+    private readonly GlobalHotkey _labelHotkey;
+
+    private DateTimeOffset _startedAt;
+    private string _traceId = string.Empty;
+    private string _spanId = string.Empty;
+    private bool _capturing;
+    private bool _didCapture;
+    private bool _captureStopping;
+    private bool _captureDrainFaulted;
+    private bool _labelPromptOpen;
+    private bool _settingsPromptOpen;
+    private bool _disposed;
+    private bool _completionDrainAttempted;
+    private string? _settingsLoadDetail;
+    private string? _lastError;
+    private long _lastReArmCount;
+    private AvailableRelease? _availableRelease;
+    private DeviceCredentialStatus _provisioning = new(DeviceCredentialState.NotProvisioned, "No device bundle has been provisioned.");
+    private EventDeliveryPresentation _streamDelivery = new(EventDeliveryPresentationState.NotProvisioned, 0);
+    private ScreenshotDeliveryPresentation _screenshotDelivery =
+        new(ScreenshotDeliveryPresentationState.NotProvisioned, 0);
+    private readonly Func<ActivityEvent, SessionContext, Task>? _sendEvent;
+    private readonly Func<ArtifactDeliveryDescriptor, string?>? _screenshotDeliveryPreparer;
+
+    private static readonly Icon IdleIcon = LoadIcon("tray-idle.ico");
+    private static readonly Icon RecordingIcon = LoadIcon("tray-recording.ico");
+
+    /// <summary>
+    /// Loads a tray glyph shipped beside the executable. The notification area is the only place
+    /// the user can see this client at all, so a missing asset is a startup failure rather than
+    /// something to paper over with a generic system icon nobody can pick out of a flyout.
+    /// </summary>
+    private static Icon LoadIcon(string fileName)
+    {
+        // Fully qualified: WPF's Shapes.Path is in scope here.
+        string path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", fileName);
+        return new Icon(path);
+    }
+
+    /// <summary>Creates the tray host and shows its icon in the notification area.</summary>
+    /// <param name="settings">The host configuration for this run.</param>
+    /// <param name="settingsLoadDetail">
+    /// Why the saved preferences were unusable at startup, when they were, so the settings window
+    /// can say so instead of silently presenting the defaults as if they were the user's choices.
+    /// </param>
+    public TrayHost(Settings settings, string? settingsLoadDetail = null, string? recoveryDetail = null, Func<ActivityEvent, SessionContext, Task>? sendEvent = null, Func<ArtifactDeliveryDescriptor, string?>? screenshotDeliveryPreparer = null, bool captureAtLaunchFromLaunchSwitch = false, CaptureAtLaunchPolicy? captureAtLaunchPolicy = null, string? captureAtLaunchPolicyDetail = null)
+    {
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _settingsLoadDetail = settingsLoadDetail;
+        _lastError = recoveryDetail;
+        _sendEvent = sendEvent;
+        _screenshotDeliveryPreparer = screenshotDeliveryPreparer;
+        _captureAtLaunchFromLaunchSwitch = captureAtLaunchFromLaunchSwitch;
+        _captureAtLaunchPolicy = captureAtLaunchPolicy ?? CaptureAtLaunchPolicy.None;
+        _captureAtLaunchPolicyDetail = captureAtLaunchPolicyDetail;
+        _icon = new NotifyIcon
+        {
+            Icon = IdleIcon,
+            Visible = true,
+            Text = IdleTooltip,
+        };
+        _heartbeat = new DispatcherTimer { Interval = _settings.HeartbeatInterval };
+        _heartbeat.Tick += (_, _) => OnHeartbeat();
+        _pauseReminder = new DispatcherTimer { Interval = TimeSpan.FromHours(1) };
+        _pauseReminder.Tick += (_, _) => PostPauseReminder();
+
+        _captureItem = MenuItem("Pause capture", (_, _) => ToggleCapture());
+        _markSessionEndItem = MenuItem(MarkSessionEndText, (_, _) => MarkSessionEnd(), enabled: false);
+        _declareLabelItem = MenuItem(DeclareLabelText, (_, _) => DeclareLabel(), enabled: false);
+        _endLabelItem = MenuItem(string.Empty, (_, _) => EndLabel(), enabled: false);
+        _exemptItem = new ToolStripMenuItem(ExemptAppsText);
+        // A closed item with no children has no chevron. Keep a dummy child so the cascade
+        // marker is visible before hover; DropDownOpening replaces it with the live list.
+        _exemptItem.DropDownItems.Add(new ToolStripMenuItem());
+        _exemptItem.DropDownOpening += (_, _) => RebuildExemptMenu();
+        _settingsItem = MenuItem("Settings...", (_, _) => OpenSettings());
+        _statusWindowItem = MenuItem("Status and onboarding...", (_, _) => ((App)System.Windows.Application.Current).ShowStatus());
+        _updateItem.Click += OpenRelease;
+
+        // Registered for the life of the process rather than per capture: the user should learn
+        // that the combination is unavailable when they open the menu, not the first time they
+        // press it in the middle of the work they were trying to label.
+        _labelHotkey = new GlobalHotkey(() => Marshal(ToggleLabelFromHotkey));
+        _labelHotkey.Start();
+
+        BuildMenu();
+        RefreshStatus();
+        MicrophonePermission.RequestOnce();
+    }
+
+    /// <summary>Whether a capture is currently recording.</summary>
+    public bool IsCapturing => _capturing;
+
+    /// <summary>
+    /// The preferences this host is actually running with. <c>App._settings</c> is the frozen
+    /// startup snapshot; this field is replaced in place by <see cref="OpenSettings"/> and by the
+    /// capture-at-launch pause/resume transitions, so anything that renders a preference to the
+    /// user must read it from here. UI-thread only, like every other member of this type.
+    /// </summary>
+    internal Settings CurrentSettings => _settings;
+
+    /// <summary>
+    /// The effective capture-at-launch state this host is running with, recomputed on every read.
+    /// The launch-switch and policy halves are fixed for the process; the user-setting half changes
+    /// under OpenSettings and the pause/resume transitions, so this must never be cached. UI-thread
+    /// only.
+    /// </summary>
+    internal EffectiveCaptureAtLaunch CurrentCaptureAtLaunch =>
+        EffectiveCaptureAtLaunch.Resolve(_settings.Persisted, _captureAtLaunchFromLaunchSwitch, _captureAtLaunchPolicy);
+
+    /// <summary>Informational only: polling can never start, stop, or alter a capture.</summary>
+    public void SetAvailableRelease(AvailableRelease? release)
+    {
+        _availableRelease = release;
+        RefreshStatus();
+    }
+
+    /// <summary>Starts a capture: mints an engine, installs the hooks, and begins recording.</summary>
+    public bool StartCapture()
+    {
+        if (_capturing)
+        {
+            return true;
+        }
+
+        try
+        {
+            _lastReArmCount = 0;
+            _captureStopping = false;
+            _captureDrainFaulted = false;
+            _completionDrainAttempted = false;
+            _identity = new AppIdentityResolver();
+            _uia = new UiaResolver(_identity, _settings.UiaTimeout);
+            _uia.SourceFailed += OnUiaSourceFailed;
+            _uia.Start();
+
+            // Built before the engine, and only when the user asked for it. A recorder that exists
+            // opens no device on its own -- the microphone is opened by the first label and by
+            // nothing else -- but a recorder that does not exist is the one guarantee that a
+            // capture the user did not consent to narrate cannot record them by accident.
+            _pauseReminder.Stop();
+            _narration = new WasapiNarrationSource(
+                _settings.NarrationClipByteCeiling,
+                () => DateTimeOffset.UtcNow);
+
+            var config = new EngineConfig(
+                _settings.CaptureRoot,
+                _settings.User,
+                _settings.InstanceName,
+                _settings.ProducerVersion,
+                _settings.ExcludedApplications,
+                ScreenshotsEnabled: true,
+                () => DateTimeOffset.UtcNow)
+            {
+                NarrationEnabled = true,
+                NarrationSource = _narration,
+                DeliveryObserver = SendCapturedEvent,
+                ScreenshotDeliveryPreparer = _screenshotDeliveryPreparer,
+            };
+
+            _traceId = Guid.NewGuid().ToString("N");
+            _spanId = Guid.NewGuid().ToString("N")[..16];
+            _engine = CaptureEngine.Start(config);
+            _startedAt = DateTimeOffset.UtcNow;
+
+            ApplyHighlightClicks(_settings.HighlightClicks);
+
+            _coordinator = new CaptureCoordinator(
+                _engine,
+                _settings,
+                _uia,
+                _identity,
+                () => DateTimeOffset.UtcNow,
+                ReadGestureMetrics(),
+                new ScreenCapture(_identity, () => DateTimeOffset.UtcNow),
+                FlashHighlight);
+            _coordinator.LabelChanged += OnLabelChanged;
+            _coordinator.Start();
+
+            _hooks = new InputHooks(
+                sample => _coordinator!.SubmitMouse(sample),
+                sample => _coordinator!.SubmitKey(sample));
+            _hooks.Start();
+
+            _foreground = new ForegroundTracker(hwnd => _coordinator!.SubmitForeground(hwnd));
+            _foreground.Start();
+
+            _watchdog = new HookWatchdog(_hooks, _settings.HeartbeatInterval, OnHookReArmed);
+            _watchdog.Start();
+
+            _capturing = true;
+            _didCapture = true;
+            _lastError = null;
+            _heartbeat.Start();
+        }
+        catch (Exception ex)
+        {
+            _lastError = ex.Message;
+            TearDownCapture();
+        }
+
+        RefreshStatus();
+        return _capturing;
+    }
+
+    /// <summary>Stops recording, commits, and opens the review window.</summary>
+    public void StopCapture()
+    {
+        if (!_capturing || _engine is null) return;
+
+        // #76 (M-A): read _resumedAPauseThisSession here; consumed (reset) below once this call
+        // has actually finished the stop, not merely started it -- see the reset site's remarks
+        // for why a PreservedForRecovery outcome must not clear it yet.
+        bool resumedAPauseThisSession = _resumedAPauseThisSession;
+
+        CaptureCompletionOutcome outcome = TryCompleteCapture();
+        if (outcome != CaptureCompletionOutcome.PreservedForRecovery)
+        {
+            // A further Copilot review round found the previous version of this reset (running
+            // unconditionally before TryCompleteCapture) silently lost the pause across a retry:
+            // PreservedForRecovery means the drain timed out or faulted, capture keeps running,
+            // and the tray offers "Retry safe stop" (CaptureStatusPresentation.Resolve's
+            // SafeStopPending state) -- clicking it re-enters this same method. Resetting on that
+            // outcome would make the marker already gone by the time the retried Stop actually
+            // commits, exactly reintroducing the bug this field exists to fix. Only a final
+            // outcome -- Committed, or the defensive NoActiveCapture case -- ends this marker's
+            // one job of bridging to the *next* Stop call, which for a retryable failure is the
+            // retry itself, not some later, unrelated Stop.
+            _resumedAPauseThisSession = false;
+        }
+
+        bool committed = outcome == CaptureCompletionOutcome.Committed;
+        if (committed)
+        {
+            // Stopping an automatically-started capture is an explicit pause, not a request to
+            // erase the preference. A later manual Start resumes it; ordinary maintenance
+            // shutdown stays on the shared completion path and does not alter this choice.
+            // #76 (M-A): OR in resumedAPauseThisSession so a Stop that follows a Start which just
+            // resumed a pause this process could not itself explain can re-record it, rather than
+            // silently losing it -- see _resumedAPauseThisSession's own remarks.
+            UpdateCaptureAtLaunchPreference(_settings.With(
+                CaptureAtLaunchPreference.AfterUserStopCompletion(
+                    _settings.Persisted, committed, CurrentCaptureAtLaunch.Enabled || resumedAPauseThisSession)));
+        }
+        RefreshStatus();
+        if (committed)
+        {
+            _didCapture = true;
+            _pauseReminder.Stop();
+            _pauseReminder.Start();
+        }
+    }
+
+    /// <summary>
+    /// Finishes this capture id and immediately starts a new stream. Not a Pause: OTLP/Files keep
+    /// going under fresh session IDs, and no .jazz-archive is exported or queued.
+    /// </summary>
+    public void MarkSessionEnd()
+    {
+        if (!_capturing)
+        {
+            return;
+        }
+
+        CaptureCompletionOutcome outcome = TryCompleteCapture();
+        RefreshStatus();
+        if (outcome != CaptureCompletionOutcome.Committed)
+        {
+            return;
+        }
+
+        _ = StartCapture();
+    }
+
+    /// <summary>
+    /// Asks the user what they are working on and opens a bracketed label around it. Declaring a
+    /// second one while another is open closes the first, which is what the engine does anyway.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The prompt is modal, and a modal WPF dialog runs a nested dispatcher loop: the tray menu keeps
+    /// pumping for as long as it is open, so <see cref="StopCapture"/> can run to completion
+    /// underneath it and tear the pipeline down. Every piece of state read before the prompt is
+    /// therefore stale by the time it returns, and has to be read again.
+    /// </para>
+    /// <para>
+    /// A capture that ended while the prompt was open is not an error to report. The user chose to
+    /// stop, the review window for the recording they just finished is already coming up, and a
+    /// message box about a label they can no longer open would only stand between them and it.
+    /// </para>
+    /// </remarks>
+    public void DeclareLabel()
+    {
+        // A second prompt stacked on the first is the same nested-pump hazard one step further on:
+        // the menu item stays enabled while the dialog owns the screen.
+        if (!_capturing || _coordinator is null || _labelPromptOpen)
+        {
+            return;
+        }
+
+        string? text;
+        _labelPromptOpen = true;
+        try
+        {
+            text = LabelPromptWindow.Ask();
+        }
+        finally
+        {
+            _labelPromptOpen = false;
+        }
+
+        if (text is null)
+        {
+            return;
+        }
+
+        // Re-read rather than reuse: the field checked above may since have been nulled by a stop,
+        // and dereferencing it would take the process down with the archive awaiting review.
+        CaptureCoordinator? coordinator = _coordinator;
+        if (!_capturing || coordinator is null)
+        {
+            return;
+        }
+
+        coordinator.SubmitLabelStart(text);
+    }
+
+    /// <summary>
+    /// What <see cref="GlobalHotkey.DisplayName"/> does: closes the open label, or opens a new one.
+    /// </summary>
+    /// <remarks>
+    /// The same toggle the macOS client binds ⌥⌘L to. Pressed with no capture running it says so on
+    /// the menu instead of doing nothing at all — an unexplained no-op from a global shortcut is
+    /// indistinguishable from a broken one.
+    /// </remarks>
+    public void ToggleLabelFromHotkey()
+    {
+        if (!_capturing || _engine is null)
+        {
+            _lastError = string.Format(
+                CultureInfo.InvariantCulture,
+                HotkeyNeedsCaptureFormat,
+                GlobalHotkey.DisplayName);
+            RefreshStatus();
+            return;
+        }
+
+        if (_engine.OpenLabel is not null)
+        {
+            EndLabel();
+            return;
+        }
+
+        DeclareLabel();
+    }
+
+    /// <summary>Closes the open bracketed label. Does nothing when none is open.</summary>
+    public void EndLabel()
+    {
+        if (_capturing && _coordinator is not null)
+        {
+            _coordinator.SubmitLabelEnd();
+        }
+    }
+
+    /// <summary>
+    /// Opens the settings pane and adopts whatever the user saved.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The new exclusion list reaches the pipeline the next time a capture starts, because that is
+    /// when the policy is frozen and written into the archive. The window says so plainly while a
+    /// capture is running, so nobody is left believing an edit took effect that did not.
+    /// </para>
+    /// <para>
+    /// Modal, and guarded against a second instance, for the same reason the label prompt is: a
+    /// modal WPF dialog runs a nested dispatcher loop, so the tray menu keeps pumping underneath it
+    /// and can be clicked again.
+    /// </para>
+    /// </remarks>
+    public void OpenSettings()
+    {
+        if (_settingsPromptOpen)
+        {
+            return;
+        }
+
+        _settingsPromptOpen = true;
+        try
+        {
+            var window = new SettingsWindow(
+                _settings, _capturing, CurrentCaptureAtLaunch, _settingsLoadDetail, _captureAtLaunchPolicyDetail);
+            window.ShowDialog();
+            if (window.Saved is { } saved)
+            {
+                _settings = _settings.With(saved);
+
+                // A successful save supersedes whatever could not be read at startup.
+                _settingsLoadDetail = null;
+                ApplyHighlightClicks(_settings.HighlightClicks);
+            }
+        }
+        finally
+        {
+            _settingsPromptOpen = false;
+        }
+
+        RefreshStatus();
+    }
+
+    /// <summary>Opens (or focuses) the review window for the committed archive.</summary>
+    public void OpenReview()
+    {
+        if (_engine is null || _engine.State == EngineState.Recording)
+        {
+            return;
+        }
+
+        if (_review is null || !_review.IsLoaded)
+        {
+            _review = new ReviewWindow(_engine, _settings);
+            _review.Closed += (_, _) => _review = null;
+        }
+
+        _review.Show();
+        _review.Activate();
+    }
+
+    /// <summary>Shuts the tray host down and releases every resource.</summary>
+    public void Quit()
+    {
+        // Quit delegates its one completion attempt to Dispose. Adding a separate
+        // TryCompleteCapture call here would retry a timed-out drain immediately, turning one
+        // user Quit into two bounded waits.
+        Dispose();
+        System.Windows.Application.Current?.Shutdown();
+    }
+
+    /// <summary>
+    /// Stops admission and commits an active capture for installer maintenance without opening
+    /// review or creating confirmation, export, or delivery intent. A failed drain leaves the
+    /// journal and process alive so replacement fails closed.
+    /// </summary>
+    public bool TryPrepareForMaintenance()
+    {
+        bool committed = TryCompleteCapture() != CaptureCompletionOutcome.PreservedForRecovery;
+        RefreshStatus();
+        return committed;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        try
+        {
+            TryCompleteCapture();
+        }
+        catch (Exception)
+        {
+            // Shutdown must not surface a .NET crash dialog. The journal already survives an
+            // incomplete drain; a thrown completion is recovery, not a user-facing failure.
+        }
+
+        try
+        {
+            _heartbeat.Stop();
+            _pauseReminder.Stop();
+            TearDownCapture(drainCoordinator: !_completionDrainAttempted);
+        }
+        catch (Exception)
+        {
+            // Same rule: tearing down hooks/COM during process exit must not crash the tray.
+        }
+
+        // Released explicitly: a hotkey left registered would keep the combination away from every
+        // other application until the process actually exits.
+        _labelHotkey.Dispose();
+        _icon.Visible = false;
+        _icon.ContextMenuStrip = null;
+        _menu.Dispose();
+        _icon.Dispose();
+    }
+
+    /// <summary>Single idempotent local completion path for user, WPF, and maintenance shutdown.</summary>
+    private CaptureCompletionOutcome TryCompleteCapture()
+    {
+        if (!_capturing || _engine is null) return CaptureCompletionOutcome.NoActiveCapture;
+
+        _captureStopping = true;
+        DrainAttempt drainAttempt = DrainAttempt.Drained;
+        try
+        {
+            CaptureCompletionOutcome outcome = OrderlyCaptureCompletion.TryCommit(
+                _engine,
+                () =>
+                {
+                    _heartbeat.Stop();
+                    _watchdog?.Stop();
+                    _foreground?.Stop();
+                    _hooks?.Stop();
+                },
+                () =>
+                {
+                    if (_coordinator is not null)
+                    {
+                        _completionDrainAttempted = true;
+                        drainAttempt = _coordinator.DrainAndStop();
+                    }
+                    return drainAttempt == DrainAttempt.Drained;
+                });
+            if (outcome == CaptureCompletionOutcome.PreservedForRecovery)
+            {
+                _captureDrainFaulted = drainAttempt == DrainAttempt.Faulted;
+                _lastError = _captureDrainFaulted
+                    ? "Capture pipeline faulted; the journal was preserved."
+                    : "Capture drain timed out; the journal was preserved for retry or recovery.";
+                return outcome;
+            }
+
+            if (outcome == CaptureCompletionOutcome.NoActiveCapture)
+            {
+                TearDownCapture(drainCoordinator: true);
+                _captureStopping = false;
+                return outcome;
+            }
+        }
+        catch (Exception)
+        {
+            _lastError = "Capture completion failed; the journal was preserved for recovery.";
+            // Completion may fail before the coordinator drain delegate runs (for example while
+            // stopping admission). Release resources either way, but drain at most once.
+            TearDownCapture(drainCoordinator: !_completionDrainAttempted);
+            _captureStopping = false;
+            _captureDrainFaulted = false;
+            return CaptureCompletionOutcome.PreservedForRecovery;
+        }
+
+        TearDownCapture(drainCoordinator: false);
+        _captureStopping = false;
+        _captureDrainFaulted = false;
+        return CaptureCompletionOutcome.Committed;
+    }
+
+    private void ToggleCapture()
+    {
+        if (_capturing)
+        {
+            StopCapture();
+        }
+        else
+        {
+            if (StartCapture())
+            {
+                // #76 (M-A, refined per a Copilot review round): remember, for this process only,
+                // that this Start is the one resuming a pause it cannot itself explain -- i.e. its
+                // own effective value was already false, so some *other* layer (typically a
+                // switch on a different shortcut) must be the reason a pause was on record at
+                // all. A plain assignment, not a conditional set: this replaces any leftover value
+                // from an earlier, unrelated Start/Stop pair in the same session rather than only
+                // ever turning true and never resetting. When Enabled is already true here, the
+                // ordinary gated pause/resume already handles everything correctly and this flag
+                // must stay false, or a later Stop -- after the user has since turned their own
+                // preference off through Settings -- could manufacture a pause nothing configured.
+                // See _resumedAPauseThisSession's own remarks.
+                _resumedAPauseThisSession = !CurrentCaptureAtLaunch.Enabled && _settings.CaptureAtLaunchPaused;
+
+                UpdateCaptureAtLaunchPreference(_settings.With(
+                    CaptureAtLaunchPreference.AfterSuccessfulManualStart(
+                        _settings.Persisted, CurrentCaptureAtLaunch.Enabled)));
+            }
+        }
+    }
+
+    private void UpdateCaptureAtLaunchPreference(Settings updated)
+    {
+        if (updated == _settings)
+        {
+            return;
+        }
+
+        _settings = updated;
+        try
+        {
+            HostSettingsStore.Save(_settings.SettingsFilePath, _settings.Persisted);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            _lastError = "Capture launch preference changed for this session only; settings could not be saved: " + ex.Message;
+        }
+    }
+
+    private void TearDownCapture(bool drainCoordinator = true)
+    {
+        // The re-arm count is a per-session diagnostic the menu keeps showing after the hooks are gone.
+        _lastReArmCount = _hooks?.ReArmCount ?? _lastReArmCount;
+
+        _watchdog?.Dispose();
+        _watchdog = null;
+        _foreground?.Dispose();
+        _foreground = null;
+        _hooks?.Dispose();
+        _hooks = null;
+        if (_coordinator is not null)
+        {
+            _coordinator.LabelChanged -= OnLabelChanged;
+            if (drainCoordinator)
+            {
+                _coordinator.DrainAndStop();
+            }
+            _coordinator.Dispose();
+            _coordinator = null;
+        }
+
+        if (_uia is not null)
+        {
+            _uia.SourceFailed -= OnUiaSourceFailed;
+            _uia.Dispose();
+            _uia = null;
+        }
+
+        // The microphone outlives the capture by nothing at all. In the ordinary path the engine's
+        // own Stop has already closed the open label and sealed its clip, so this releases a
+        // recorder that holds no device; on the path where Stop threw, this is what still ends the
+        // recording. Either way no code below this line can open a microphone.
+        if (_narration is not null)
+        {
+            _narration.Dispose();
+            _narration = null;
+        }
+
+        // The overlay outlives nothing: it is a visible mark on the user's screen that says a
+        // capture is watching, so it goes away at the same moment the capture does.
+        if (_highlight is not null)
+        {
+            ClickHighlightOverlay overlay = _highlight;
+            _highlight = null;
+            Marshal(overlay.Dispose);
+        }
+
+        _capturing = false;
+    }
+
+    /// <summary>Turns the click overlay on or off immediately, including during an active capture.</summary>
+    private void ApplyHighlightClicks(bool enabled)
+    {
+        if (enabled)
+        {
+            _highlight ??= new ClickHighlightOverlay();
+            return;
+        }
+
+        if (_highlight is null)
+        {
+            return;
+        }
+
+        ClickHighlightOverlay overlay = _highlight;
+        _highlight = null;
+        overlay.Dispose();
+    }
+
+    /// <summary>
+    /// Draws one click highlight. Called from the coordinator's worker thread, so the work is
+    /// handed to the dispatcher that owns the overlay window rather than done in place.
+    /// </summary>
+    private void FlashHighlight(BoundingBox bounds)
+    {
+        if (!_settings.HighlightClicks)
+        {
+            return;
+        }
+
+        Marshal(() =>
+        {
+            _highlight ??= new ClickHighlightOverlay();
+            _highlight.Flash(bounds);
+        });
+    }
+
+    /// <summary>Runs an action on the UI thread, in place when already there.</summary>
+    private void Marshal(Action action)
+    {
+        if (_heartbeat.Dispatcher.CheckAccess())
+        {
+            action();
+            return;
+        }
+
+        _heartbeat.Dispatcher.BeginInvoke(action);
+    }
+
+    private void OnHeartbeat()
+    {
+        PollCapabilities();
+        RefreshStatus();
+    }
+
+    private void PollCapabilities()
+    {
+        if (_coordinator is null)
+        {
+            return;
+        }
+
+        bool hooksLive = _hooks?.IsInstalled ?? false;
+        _coordinator.EmitCapability(Sample(Capability.PointerCapture, hooksLive));
+        _coordinator.EmitCapability(Sample(Capability.KeyboardCapture, hooksLive));
+        _coordinator.EmitCapability(Sample(Capability.AccessibilityContext, _uia?.IsReady ?? false));
+    }
+
+    private static CapabilitySample Sample(Capability capability, bool available) => available
+        ? new CapabilitySample(
+            capability,
+            CapabilityAuthorization.Granted,
+            CapabilityAvailability.Available,
+            CapabilityReason.PermissionGranted)
+        : new CapabilitySample(
+            capability,
+            CapabilityAuthorization.Granted,
+            CapabilityAvailability.Unavailable,
+            CapabilityReason.SourceFailure,
+            "modality not supplying evidence");
+
+    private void OnHookReArmed()
+    {
+        if (_coordinator is null || _hooks is null)
+        {
+            return;
+        }
+
+        string detail = "event tap re-armed " + _hooks.ReArmCount.ToString(CultureInfo.InvariantCulture);
+        foreach (Capability capability in new[] { Capability.PointerCapture, Capability.KeyboardCapture })
+        {
+            _coordinator.EmitCapability(new CapabilitySample(
+                capability,
+                CapabilityAuthorization.Granted,
+                CapabilityAvailability.Unavailable,
+                CapabilityReason.EventTapTimeout,
+                detail));
+            _coordinator.EmitCapability(new CapabilitySample(
+                capability,
+                CapabilityAuthorization.Granted,
+                CapabilityAvailability.Available,
+                CapabilityReason.SourceRecovered,
+                detail));
+        }
+
+        _lastError = "Input hook re-armed " + _hooks.ReArmCount.ToString(CultureInfo.InvariantCulture) + "x this session";
+        RefreshStatus();
+    }
+
+    /// <summary>
+    /// A label boundary reached the engine. The coordinator raises this on its worker thread, and
+    /// the menu belongs to the UI thread, so the refresh is marshalled rather than done in place.
+    /// </summary>
+    private void OnLabelChanged() => Marshal(RefreshStatus);
+
+    private void OnUiaSourceFailed(string message)
+    {
+        _coordinator?.EmitCapability(new CapabilitySample(
+            Capability.AccessibilityContext,
+            CapabilityAuthorization.Granted,
+            CapabilityAvailability.Unavailable,
+            CapabilityReason.SourceFailure,
+            message.Length > CapabilityObservation.MaxDetailLength
+                ? message[..CapabilityObservation.MaxDetailLength]
+                : message));
+    }
+
+    private static GestureMetrics ReadGestureMetrics() => new(
+        NativeMethods.GetDoubleClickTime(),
+        NativeMethods.GetSystemMetrics(NativeMethods.SM_CXDOUBLECLK),
+        NativeMethods.GetSystemMetrics(NativeMethods.SM_CYDOUBLECLK),
+        NativeMethods.GetSystemMetrics(NativeMethods.SM_CXDRAG),
+        NativeMethods.GetSystemMetrics(NativeMethods.SM_CYDRAG));
+
+    /// <summary>
+    /// Assembles the tray menu once. Every later change is a property update on these items: the
+    /// heartbeat fires while recording, and disposing the strip there would pull the menu out from
+    /// under a user who has it open.
+    /// </summary>
+    private void BuildMenu()
+    {
+        _menu.Items.Add(_statusItem);
+        _menu.Items.Add(_labelStatusItem);
+        _menu.Items.Add(_deliveryItem);
+        _menu.Items.Add(_provisioningItem);
+        _menu.Items.Add(_streamingItem);
+        _menu.Items.Add(_screenshotDeliveryItem);
+        _menu.Items.Add(_reArmItem);
+        _menu.Items.Add(_hotkeyItem);
+        _menu.Items.Add(_errorItem);
+        _menu.Items.Add(new ToolStripSeparator());
+        _menu.Items.Add(_captureItem);
+        _menu.Items.Add(_markSessionEndItem);
+        _menu.Items.Add(_declareLabelItem);
+        _menu.Items.Add(_endLabelItem);
+        _menu.Items.Add(_exemptItem);
+        _menu.Items.Add(_settingsItem);
+        _menu.Items.Add(_statusWindowItem);
+        _menu.Items.Add(_updateItem);
+
+        _icon.ContextMenuStrip = _menu;
+    }
+
+    /// <summary>Accepts safe state text only; credentials and endpoints never reach the tray.</summary>
+    public void SetProvisioningStatus(DeviceCredentialStatus status)
+    {
+        _provisioning = status;
+        Marshal(RefreshStatus);
+    }
+
+    private void SendCapturedEvent(CaptureEngine engine, ActivityEvent activityEvent)
+    {
+        if (_sendEvent is null) return;
+        var context = new SessionContext(engine.Identity.SessionId, _traceId, _spanId,
+            engine.StartedAt, null, _settings.User, _settings.InstanceName, null, null);
+        _ = _sendEvent(activityEvent, context);
+    }
+
+    /// <summary>Accepts safe state text only; credentials, endpoints and file paths never reach the
+    /// tray. A distinct line from <see cref="SetScreenshotDeliveryStatus"/>: capture, screenshot
+    /// delivery and event delivery are three separate, independently visible tray states.</summary>
+    public void SetStreamingStatus(EventDeliveryPresentation status)
+    {
+        _streamDelivery = status;
+        Marshal(RefreshStatus);
+    }
+
+    /// <summary>Accepts safe state text only; credentials, endpoints and file paths never reach the
+    /// tray. A distinct line from <see cref="SetStreamingStatus"/>: capture and screenshot delivery
+    /// are separate, independently visible tray states.</summary>
+    public void SetScreenshotDeliveryStatus(ScreenshotDeliveryPresentation status)
+    {
+        _screenshotDelivery = status;
+        Marshal(RefreshStatus);
+    }
+
+    /// <summary>Updates the tooltip and every menu line in place, open menu or not.</summary>
+    private void RefreshStatus()
+    {
+        CaptureStatusPresentation presentation = CaptureStatusPresentation.Resolve(
+            _capturing && _engine is not null,
+            _captureStopping,
+            _captureDrainFaulted);
+        bool recording = presentation.ShowsRecording;
+        string status = recording
+            ? string.Format(
+                CultureInfo.InvariantCulture,
+                RecordingFormat,
+                DateTimeOffset.UtcNow - _startedAt,
+                _engine!.EventCount)
+            : presentation.State == CapturePresentationState.Idle
+                ? (_settings.CaptureAtLaunchPaused ? "Paused by you" : IdleStatus)
+                : presentation.Status;
+
+        // The glyph carries the state on its own: a hollow ring while idle, a filled disc while
+        // recording, the same distinction the macOS menu bar makes. Once producer admission has
+        // stopped, safe-stop pending/fault states use the idle glyph even though _capturing keeps
+        // ownership of the uncommitted engine and journal.
+        _icon.Icon = recording ? RecordingIcon : IdleIcon;
+        _icon.Text = presentation.State == CapturePresentationState.Idle && !_settings.CaptureAtLaunchPaused
+            ? IdleTooltip
+            : Truncate("Jazz Capture - " + status);
+        _statusItem.Text = status;
+
+        // What the user declared they are doing outranks every diagnostic below it: it is the one
+        // line that says whether this stretch of the recording will mean anything downstream.
+        LabelSegment? open = recording ? _engine!.OpenLabel : null;
+        _labelStatusItem.Available = open is not null;
+        _declareLabelItem.Enabled = recording;
+        _endLabelItem.Available = open is not null;
+        if (open is not null)
+        {
+            // The engine is asked, not the settings and not the recorder: it is the only party that
+            // knows a clip actually started, and a microphone indicator that reports the intention
+            // rather than the fact is worse than none — it would stay lit through a refusal.
+            _labelStatusItem.Text = Truncate(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    _engine!.IsNarrationRecording ? NarratedLabelFormat : OpenLabelFormat,
+                    open.Text));
+            _endLabelItem.Text = Truncate(
+                string.Format(CultureInfo.InvariantCulture, EndLabelFormat, open.Text));
+            _endLabelItem.Enabled = true;
+        }
+
+        // What is still waiting to leave the machine, and what stopped it last. The line hides
+        // itself when there is nothing to say, like every other diagnostic here, but it never hides
+        // a delivery that failed permanently: that archive will not leave on its own, and the
+        // notification area is the only place this client can say so.
+        _deliveryItem.Available = false;
+
+        _provisioningItem.Available = true;
+        _provisioningItem.Text = Truncate("Provisioning: " + _provisioning.Reason);
+        _streamingItem.Available = true;
+        _streamingItem.Text = Truncate("Streaming: " + _streamDelivery.Describe());
+        _screenshotDeliveryItem.Available = true;
+        _screenshotDeliveryItem.Text = Truncate("Screenshots: " + _screenshotDelivery.Describe());
+
+        long reArms = _hooks?.ReArmCount ?? _lastReArmCount;
+        _reArmItem.Available = reArms > 0;
+        if (reArms > 0)
+        {
+            _reArmItem.Text = string.Format(CultureInfo.InvariantCulture, ReArmFormat, reArms);
+        }
+
+        // A shortcut that does nothing has to say why. Without this line the user presses
+        // Alt+Ctrl+L, nothing happens, and there is nowhere in the client that explains it.
+        _hotkeyItem.Available = _labelHotkey.Failure is not null;
+        if (_labelHotkey.Failure is { } hotkeyFailure)
+        {
+            _hotkeyItem.Text = "! " + Truncate(hotkeyFailure);
+        }
+
+        _errorItem.Available = _lastError is not null;
+        if (_lastError is not null)
+        {
+            _errorItem.Text = "! " + Truncate(_lastError);
+        }
+
+        _captureItem.Text = presentation.ActionText;
+        _markSessionEndItem.Enabled = recording;
+        _updateItem.Available = _availableRelease is not null;
+        if (_availableRelease is not null)
+        {
+            _updateItem.Text = $"Update available: v{_availableRelease.Version}";
+            _updateItem.Enabled = true;
+        }
+        _captureItem.Enabled = presentation.ActionEnabled;
+    }
+
+    private void RebuildExemptMenu()
+    {
+        _exemptItem.DropDownItems.Clear();
+
+        foreach (string id in _settings.ExcludedApplications)
+        {
+            string identity = id;
+            var item = new ToolStripMenuItem(identity);
+            item.ToolTipText = "Remove from exempt list";
+            item.Click += (_, _) => RemoveExempt(identity);
+            _exemptItem.DropDownItems.Add(item);
+        }
+
+        _exemptItem.DropDownItems.Add(new ToolStripSeparator());
+
+        var running = new ToolStripMenuItem(AddRunningAppText);
+        var denylist = new ApplicationDenylist(_settings.ExcludedApplications);
+        foreach (RunningApplication application in RunningApplications.Enumerate(_pickerIdentity))
+        {
+            if (denylist.IsExcluded(application.Identity))
+            {
+                continue;
+            }
+
+            string identity = application.Identity.Value;
+            var item = new ToolStripMenuItem(application.DisplayName + " (" + identity + ")");
+            item.Click += (_, _) => AddExempt(identity);
+            running.DropDownItems.Add(item);
+        }
+
+        if (running.DropDownItems.Count == 0)
+        {
+            running.Enabled = false;
+        }
+
+        _exemptItem.DropDownItems.Add(running);
+    }
+
+    private void AddExempt(string identity)
+    {
+        if (new ApplicationDenylist(_settings.ExcludedApplications).IsExcluded(identity))
+        {
+            return;
+        }
+
+        _settings = _settings with
+        {
+            ExcludedApplications = ApplicationDenylist.DistinctCovering(
+                _settings.ExcludedApplications.Append(identity)),
+        };
+        PersistExemptSettings();
+    }
+
+    private void RemoveExempt(string identity)
+    {
+        _settings = _settings with
+        {
+            ExcludedApplications = ApplicationDenylist.DistinctCovering(
+                _settings.ExcludedApplications.Where(
+                    entry => !string.Equals(entry, identity, StringComparison.OrdinalIgnoreCase))),
+        };
+        PersistExemptSettings();
+    }
+
+    private void PersistExemptSettings()
+    {
+        try
+        {
+            HostSettingsStore.Save(_settings.SettingsFilePath, _settings.Persisted);
+            _lastError = _capturing ? "Exempt-app change takes effect on the next capture" : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _lastError = "Settings could not be saved: " + ex.Message;
+        }
+
+        RefreshStatus();
+    }
+
+    private void PostPauseReminder()
+    {
+        if (_capturing || !_didCapture || !_settings.CaptureAtLaunchPaused)
+        {
+            _pauseReminder.Stop();
+            return;
+        }
+
+        _icon.ShowBalloonTip(10000, PauseReminderTitle, PauseReminderBody, ToolTipIcon.None);
+    }
+
+    private static ToolStripMenuItem MenuItem(string text, EventHandler handler, bool enabled = true)
+    {
+        var item = new ToolStripMenuItem(text) { Enabled = enabled };
+        item.Click += handler;
+        return item;
+    }
+
+    /// <summary>A non-interactive line: status, a warning, or a placeholder.</summary>
+    private static ToolStripMenuItem Label(string text) => new(text) { Enabled = false };
+
+    private static string Truncate(string text) => text.Length <= 63 ? text : text[..60] + "...";
+
+    private void OpenRelease(object? sender, EventArgs args)
+    {
+        if (_availableRelease is null) return;
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_availableRelease.Url.AbsoluteUri) { UseShellExecute = true }); }
+        catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            _lastError = "Could not open the release link.";
+            RefreshStatus();
+        }
+    }
+}

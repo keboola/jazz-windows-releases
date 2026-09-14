@@ -1,0 +1,45 @@
+{
+  "algorithm": "sha256",
+  "entries": [
+    {
+      "path": "blobs/sha256/13/136af3d4bef735efdd37ee5a27b8a90cc2b54accb29fa5ed4315c4ddfb9f364c",
+      "byteLength": 9575,
+      "sha256": "136af3d4bef735efdd37ee5a27b8a90cc2b54accb29fa5ed4315c4ddfb9f364c"
+    },
+    {
+      "path": "blobs/sha256/2c/2c845830e830e1d1d3592a8301a84c01c1350c4af6f095d45fee09a3f6be094b",
+      "byteLength": 87,
+      "sha256": "2c845830e830e1d1d3592a8301a84c01c1350c4af6f095d45fee09a3f6be094b"
+    },
+    {
+      "path": "blobs/sha256/fe/fe68d1a8be9a4b352dda61dc540a12140094a458c2fd0cf454560e816f25238a",
+      "byteLength": 1911,
+      "sha256": "fe68d1a8be9a4b352dda61dc540a12140094a458c2fd0cf454560e816f25238a"
+    },
+    {
+      "path": "sessions/cap-44444444-4444-7444-8444-444444444441/artifacts.ndjson",
+      "byteLength": 3342,
+      "sha256": "d5422865ba8b2e354039055bdb5841eb213b94e4f0402e56c0fd73cc55053e06"
+    },
+    {
+      "path": "sessions/cap-44444444-4444-7444-8444-444444444441/commit.json",
+      "byteLength": 1080,
+      "sha256": "f6ed7fabdb29b11c237f571166f40fc51975c909442d863fbee7f07beeedaddf"
+    },
+    {
+      "path": "sessions/cap-44444444-4444-7444-8444-444444444441/labels.ndjson",
+      "byteLength": 872,
+      "sha256": "c45f0370ae1be6f8eefd0b32b100ccdbe98100eabfd41e356f65a843c060390c"
+    },
+    {
+      "path": "sessions/cap-44444444-4444-7444-8444-444444444441/records.ndjson",
+      "byteLength": 21016,
+      "sha256": "05f96bd78ed78960e94914b8d0e666646e7c9cc1d2e9f98377a1a2e1f0c8d95c"
+    },
+    {
+      "path": "sessions/cap-44444444-4444-7444-8444-444444444441/session.json",
+      "byteLength": 1700,
+      "sha256": "3b665b88e7f9c5467b58d96efdf9c075aacb5d2b99472ed242dc2cf49979e40d"
+    }
+  ]
+}

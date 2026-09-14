@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "commitId": "cmt-22222222-2222-7222-8222-222222222222",
+  "captureId": "cap-22222222-2222-7222-8222-222222222222",
+  "revision": 1,
+  "endedAt": "2026-07-22T09:02:00Z",
+  "streamSummaries": [
+    {
+      "streamId": "stream-22222222-2222-7222-8222-222222222222",
+      "firstSequence": 0,
+      "lastSequence": 7,
+      "observationCount": 7
+    }
+  ],
+  "orderedObservationDigest": "34195bf135f5dac660ee2d4a9ebf189e18801223981ef5e2b8b88e3722b56d13",
+  "artifactCount": 1,
+  "artifactSetDigest": "ffeef4c03d5f996f617d76bad7a27a642b20fdcdf16bf9c4ecdfddff20973e2c",
+  "gaps": [
+    {
+      "streamId": "stream-22222222-2222-7222-8222-222222222222",
+      "firstSequence": 7,
+      "lastSequence": 7,
+      "reason": "source_unavailable",
+      "detail": "The source stopped after reserving the final sequence."
+    }
+  ]
+}

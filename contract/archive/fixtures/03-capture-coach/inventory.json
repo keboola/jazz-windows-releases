@@ -1,0 +1,25 @@
+{
+  "algorithm": "sha256",
+  "entries": [
+    {
+      "path": "sessions/s-33333333-3333-7333-8333-333333333333/commit.json",
+      "byteLength": 607,
+      "sha256": "47ce4330207cac224bb4989196786703fe9f5b1c0127e588f820c2f975ce0b56"
+    },
+    {
+      "path": "sessions/s-33333333-3333-7333-8333-333333333333/labels.ndjson",
+      "byteLength": 765,
+      "sha256": "8b0689f98e3811ce1af9407bcf2d9c239ec30d94981f901f359b4923bca56fc0"
+    },
+    {
+      "path": "sessions/s-33333333-3333-7333-8333-333333333333/records.ndjson",
+      "byteLength": 23724,
+      "sha256": "71dac3513312286fc7f99f2460dc98a9dd7b54c4cb89519179cb9a70d641222e"
+    },
+    {
+      "path": "sessions/s-33333333-3333-7333-8333-333333333333/session.json",
+      "byteLength": 1350,
+      "sha256": "313f49b41ef66061a67779bf6c80978401957f0200d58499e0b06a3a183f4921"
+    }
+  ]
+}
